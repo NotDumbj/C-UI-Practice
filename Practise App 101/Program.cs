@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Formats.Asn1;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -10,9 +11,25 @@ class Game
         //-----------------------------  SETTINGS  -------------------------------------//
         ContextSettings settings = new ContextSettings();
         settings.AntialiasingLevel = 8;
+
+        uint WIDTH = 1920;
+        uint HEIGHT= 1028;
+        string TITLE = "Escape The Eye Wrath";
         //-----------------------------  SETTINGS  -------------------------------------//
         //----------------------------  INTIALIZE  ------------------------------------//
-        RenderWindow renderWindow = new(new(800, 600), "Nigga", Styles.Default, settings);
+        RenderWindow renderWindow = new(new(WIDTH, HEIGHT), TITLE, Styles.Default, settings);
+        
+        VertexArray eyeL = new VertexArray(PrimitiveType.Triangles, 3);
+        VertexArray eyeR = new VertexArray(PrimitiveType.Triangles, 3);
+
+        CircleShape eyelidR = new CircleShape(5.0f);
+        CircleShape eyelidL = new CircleShape(5.0f);
+
+        Sprite player = new Sprite(new Texture("assets\\textures\\player\\player.png"));
+        int Xsprite = 0;
+        int Ysprite = 0;
+        player.TextureRect = new IntRect(Xsprite * 64, Ysprite * 64, 64, 64);
+        //events
         renderWindow.Closed += (sender, e) => renderWindow.Close();
         renderWindow.KeyPressed += (sender, e) =>
         {
@@ -20,85 +37,82 @@ class Game
                 renderWindow.Close();
             }
         };
-        // Define a triangle using VertexArray
-        VertexArray triangle = new VertexArray(PrimitiveType.Triangles, 3);
 
-        // Set the positions and colors of the triangle vertices
-        triangle[0] = new Vertex(new Vector2f(800 / 2 + 150, 200 - 60), Color.Yellow);
-        triangle[1] = new Vertex(new Vector2f(800 / 2 + 150 - 60, 200 + 30), Color.Yellow);
-        triangle[2] = new Vertex(new Vector2f(800 / 2 + 150 + 60, 200 + 30), Color.Yellow);
+        
 
-        // Define a triangle using VertexArray
-        VertexArray triangle2 = new VertexArray(PrimitiveType.Triangles, 3);
+        // load
+        eyeL[0] = new Vertex(new Vector2f(WIDTH / 2 + 150, 200 - 60), Color.Yellow);
+        eyeL[1] = new Vertex(new Vector2f(WIDTH / 2 + 150 - 60, 200 + 30), Color.Yellow);
+        eyeL[2] = new Vertex(new Vector2f(WIDTH / 2 + 150 + 60, 200 + 30), Color.Yellow);
 
-        // Set the positions and colors of the triangle vertices
-        triangle2[0] = new Vertex(new Vector2f(800 / 2 - 150, 200 - 60), Color.Yellow);
-        triangle2[1] = new Vertex(new Vector2f(800 / 2 - 150 - 60, 200 + 30), Color.Yellow);
-        triangle2[2] = new Vertex(new Vector2f(800 / 2 - 150 + 60, 200 + 30), Color.Yellow);
+        eyeR[0] = new Vertex(new Vector2f(WIDTH / 2 - 150, 200 - 60), Color.Yellow);
+        eyeR[1] = new Vertex(new Vector2f(WIDTH / 2 - 150 - 60, 200 + 30), Color.Yellow);
+        eyeR[2] = new Vertex(new Vector2f(WIDTH / 2 - 150 + 60, 200 + 30), Color.Yellow);
 
-        CircleShape circle = new CircleShape(60.0f, 3);
-        circle.OutlineThickness = 1;
-        circle.FillColor = Color.Yellow;
-        circle.Position = new Vector2f(800/2 + 150, 200);
-        circle.Origin = new Vector2f(60, 60);
-        Console.WriteLine(circle.GetType());
+        eyelidR.OutlineThickness = 1;
+        eyelidR.FillColor = Color.Yellow;
+        eyelidR.Origin = new Vector2f(eyelidR.Radius, eyelidR.Radius);
 
-        CircleShape circle2 = new CircleShape(60.0f, 3);
-        circle2.OutlineThickness = 1;
-        circle2.FillColor = Color.Yellow;
-        circle2.Position = new Vector2f(800/2 - 150, 200);
-        circle2.Origin = new Vector2f(60, 60);
-        Console.WriteLine(circle.GetType());
+        eyelidL.OutlineThickness = 1;
+        eyelidL.FillColor = Color.Yellow;
+        eyelidL.Origin = new Vector2f(eyelidL.Radius, eyelidL.Radius);
+
         //----------------------------  INTIALIZE  ------------------------------------//
 
 
         while (renderWindow.IsOpen){
-            //----------------------------  UPDATE  ------------------------------------//
             renderWindow.DispatchEvents();
+            //----------------------------  UPDATE  ------------------------------------//
+            Vector2f centerE = new Vector2f(200f, 600f);
+            eyelidR.Position = centerE;
+
+
+            //Blink
             if (Keyboard.IsKeyPressed(Keyboard.Key.B))
             {
-                int animationCounter = 100;
+                int animationCounter = 50;
                 for (int i = 0; i < animationCounter; i++)
                 {
-                    Vector2f pos = triangle[0].Position;
+                    Vector2f pos = eyeL[0].Position;
                     pos.Y += (90f / animationCounter);
-                    triangle[0] = new Vertex(pos, Color.Yellow);
-                    Vector2f pos2 = triangle2[0].Position;
+                    eyeL[0] = new Vertex(pos, Color.Yellow);
+                    Vector2f pos2 = eyeR[0].Position;
                     pos2.Y += (90f / animationCounter);
-                    triangle2[0] = new Vertex(pos2, Color.Yellow);
+                    eyeR[0] = new Vertex(pos2, Color.Yellow);
 
                     renderWindow.Clear(new Color(0, 0, 0));
 
-                    renderWindow.Draw(triangle);
-                    renderWindow.Draw(triangle2);
+                    renderWindow.Draw(eyeL);
+                    renderWindow.Draw(eyeR);
 
                     renderWindow.Display();
                 }
 
                 for (int i = 0; i < animationCounter; i++)
                 {
-                    Vector2f pos = triangle[0].Position;
+                    Vector2f pos = eyeL[0].Position;
                     pos.Y -= (90f / animationCounter);
-                    triangle[0] = new Vertex(pos, Color.Yellow);
-                    Vector2f pos2 = triangle2[0].Position;
+                    eyeL[0] = new Vertex(pos, Color.Yellow);
+                    Vector2f pos2 = eyeR[0].Position;
                     pos2.Y -= (90f / animationCounter);
-                    triangle2[0] = new Vertex(pos2, Color.Yellow);
+                    eyeR[0] = new Vertex(pos2, Color.Yellow);
                     renderWindow.Clear(new Color(0, 0, 0));
 
-                    renderWindow.Draw(triangle);
-                    renderWindow.Draw(triangle2);
+                    renderWindow.Draw(eyeL);
+                    renderWindow.Draw(eyeR);
 
                     renderWindow.Display();
                 }
             }
+
             //----------------------------  UPDATE  ------------------------------------//
             //----------------------------  DRAW  ------------------------------------//
             renderWindow.Clear(new Color(0, 0, 0));
 
-            //renderWindow.Draw(circle);
-            //renderWindow.Draw(circle2);
-            renderWindow.Draw(triangle);
-            renderWindow.Draw(triangle2);
+            renderWindow.Draw(eyeL);
+            renderWindow.Draw(eyeR);
+            renderWindow.Draw(eyelidR);
+            renderWindow.Draw(player);
 
             renderWindow.Display();
             //----------------------------  DRAW  ------------------------------------//
